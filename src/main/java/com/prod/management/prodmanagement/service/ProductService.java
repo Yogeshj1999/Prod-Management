@@ -8,7 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,12 +22,20 @@ public class ProductService {
 
     public ProductDto getProducts(String name) {
         if (NumberUtils.isCreatable(name)) {
-            Optional<Product> byId = repository.findById(Long.valueOf(name));
+            Optional<Product> byId = repository.findById(name);
             ProductDto dto = mapper.toDTO(byId.orElse(null));
             return dto;
         }
         Product byProductName = repository.findByProductName(name);
         return mapper.toDTO(byProductName);
+    }
+    public List<ProductDto> getAllProducts() {
+
+            List<Product> byId = repository.findAll();
+            List<ProductDto> dto = byId.stream()
+                    .map( mapper::toDTO).collect(Collectors.toList());
+            return dto;
+
     }
 
 }
