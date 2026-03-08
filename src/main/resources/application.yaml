@@ -1,3 +1,45 @@
 spring:
+  management.endpoints.web.exposure.include: metrics,prometheus
+  management.metrics.export.prometheus.enable: true
   application:
     name: Prod-Management
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username:
+    password:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      sessionStore:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 1s
+        failureRateThreshold: 50
+        slowCallRateThreshold: 100
+        slowCallDurationThreshold: 2s
+        recordExceptions:
+          - org.springframework.jdbc.BadSqlGrammarException
+          - java.sql.SQLException
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: DEBUG
+    org.springframework.session: DEBUG
+    io.github.resilience4j: DEBUG
+
+
+
